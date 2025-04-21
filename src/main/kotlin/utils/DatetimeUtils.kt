@@ -1,8 +1,9 @@
 package utils
 
+import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.util.*
+import java.util.Locale
 
 object DateTimeUtils {
     private val pubDateFormatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH)
@@ -14,5 +15,11 @@ object DateTimeUtils {
         val zonedDateTime = ZonedDateTime.parse(correctedDate, pubDateFormatter)
         val localDateTime = zonedDateTime.toLocalDateTime()
         return localDateTime.format(outputFormatter)
+    }
+
+    fun convertPubDateToLocalDateTime(pubDate: String): LocalDateTime {
+        val correctedDate = pubDate.replace("GMT", "+0000")
+        val zonedDateTime = ZonedDateTime.parse(correctedDate, pubDateFormatter)
+        return zonedDateTime.toLocalDateTime()
     }
 }
