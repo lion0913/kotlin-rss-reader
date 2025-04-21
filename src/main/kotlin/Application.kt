@@ -3,6 +3,7 @@ import model.Item
 import org.w3c.dom.Element
 import org.w3c.dom.Node
 import org.w3c.dom.NodeList
+import utils.DateTimeUtils
 import java.net.URL
 import javax.xml.parsers.DocumentBuilderFactory
 
@@ -18,36 +19,21 @@ fun main() {
     val items: NodeList = xml.getElementsByTagName("item")
     val itemList = mutableListOf<Item>()
 
-    for (i in 0 until 10) {
+    for (i in 0 until items.length) {
         val node: Node = items.item(i)
         if (node.nodeType == Node.ELEMENT_NODE) {
             val elem = node as Element
 
             val title = elem.getElementsByTagName("title").item(0)?.textContent ?: ""
             val link = elem.getElementsByTagName("link").item(0)?.textContent ?: ""
-            val pubDate = elem.getElementsByTagName("pubDate").item(0)?.textContent ?: ""
-
+            val pubDateRaw = elem.getElementsByTagName("pubDate").item(0)?.textContent.toString()
+            val pubDate = DateTimeUtils.convertPubDateToLocalDateString(pubDateRaw)
             itemList.add(Item(title, link, pubDate))
         }
     }
 
     val channel = Channel(itemList)
-
-    // 결과 출력
-    channel.items.forEachIndexed { index, item ->
-        println("[${index + 1}] $item")
-    }
-
-    val list = mutableListOf<RssItem>()
-
-    for (i in 0 until items.length) {
-        val item = items.item(i) as Element
-        val title = item.getElementsByTagName("title").item(0)?.textContent?.trim() ?: ""
-        val pubDate = item.getElementsByTagName("pubDate").item(0)?.textContent?.substring(0, 16) ?: ""
-        val link = item.getElementsByTagName("link").item(0)?.textContent?.trim() ?: ""
-
-        list.add(RssItem(title, pubDate, link))
-    }
+    val list = channel.items
 
     while (true) {
         println()
@@ -56,9 +42,11 @@ fun main() {
 
         val filtered =
             if (keyword.isNullOrEmpty()) {
-                list
+                list.sortedByDescending { it.pubDate }.take(10)
             } else {
                 list.filter { it.title.contains(keyword, ignoreCase = true) }
+                    .sortedByDescending { it.pubDate }
+                    .take(10)
             }
 
         println()
