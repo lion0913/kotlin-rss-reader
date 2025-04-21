@@ -1,5 +1,5 @@
 package model
 
 data class Channel(
-    val items: List<Item>
+    val items: List<Item>,
 )

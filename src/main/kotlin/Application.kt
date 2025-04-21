@@ -6,19 +6,19 @@ import org.w3c.dom.NodeList
 import java.net.URL
 import javax.xml.parsers.DocumentBuilderFactory
 
-
 fun main() {
     val factory = DocumentBuilderFactory.newInstance()
-    val xml = factory
-        .newDocumentBuilder()
-        .parse(URL("https://developers.hyundaimotorgroup.com/blog/rss").openStream())
+    val xml =
+        factory
+            .newDocumentBuilder()
+            .parse(URL("https://developers.hyundaimotorgroup.com/blog/rss").openStream())
 
     xml.documentElement.normalize()
 
     val items: NodeList = xml.getElementsByTagName("item")
     val itemList = mutableListOf<Item>()
 
-    for (i in 0 until items.length) {
+    for (i in 0 until 10) {
         val node: Node = items.item(i)
         if (node.nodeType == Node.ELEMENT_NODE) {
             val elem = node as Element
@@ -35,9 +35,6 @@ fun main() {
 
     // 결과 출력
     channel.items.forEachIndexed { index, item ->
-        println("=========${index + 1}=========")
-        println("제목: ${item.title}")
-        println("링크: ${item.link}")
-        println("발행일: ${item.pubDate}")
+        println("[${index + 1}] $item")
     }
 }
