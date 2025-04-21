@@ -8,28 +8,7 @@ import java.net.URL
 import java.time.LocalDateTime
 import javax.xml.parsers.DocumentBuilderFactory
 
-fun main() {
-    val allItems =
-        BlogRss.entries.flatMap { blog ->
-            println("\n🔔 ${blog.title}")
-            println("─────────────────────────────────────")
-
-            val items =
-                try {
-                    parseRss(blog.rssUrl)
-                } catch (e: Exception) {
-                    println("⚠️  ${blog.title} RSS 파싱 실패: ${e.message}")
-                    return@flatMap emptyList<Item>()
-                }
-
-            items.forEachIndexed { index, item ->
-                val date = DateTimeUtils.convertPubDateToLocalDateString(item.pubDate)
-                println("[${index + 1}] $item")
-            }
-
-            items
-        }
-
+suspend fun main() {
     while (true) {
         println("\n검색어를 입력하세요 (없으면 전체 출력, 종료하려면 exit):")
         val input = readlnOrNull()?.trim()
@@ -39,6 +18,21 @@ fun main() {
             break
         }
 
+        val allItems =
+            BlogRss.entries.flatMap { blog ->
+//                println("\n🔔 ${blog.title}")
+//                println("─────────────────────────────────────")
+
+                val items =
+                    try {
+                        parseRss(blog.rssUrl)
+                    } catch (e: Exception) {
+                        println("⚠️  ${blog.title} RSS 파싱 실패: ${e.message}")
+                        return@flatMap emptyList<Item>()
+                    }
+
+                items
+            }
         val filtered =
             if (input.isNullOrBlank()) {
                 allItems.take(10)
@@ -57,7 +51,6 @@ fun main() {
 
         println()
         filtered.forEachIndexed { index, item ->
-            val date = DateTimeUtils.convertPubDateToLocalDateString(item.pubDate)
             println("[${index + 1}] $item")
         }
 
@@ -67,7 +60,7 @@ fun main() {
     }
 }
 
-fun parseRss(url: String): List<Item> {
+suspend fun parseRss(url: String): List<Item> {
     val factory = DocumentBuilderFactory.newInstance()
     val xml = factory.newDocumentBuilder().parse(URL(url).openStream())
     xml.documentElement.normalize()
