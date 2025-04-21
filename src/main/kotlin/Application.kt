@@ -37,4 +37,37 @@ fun main() {
     channel.items.forEachIndexed { index, item ->
         println("[${index + 1}] $item")
     }
+
+    val list = mutableListOf<RssItem>()
+
+    for (i in 0 until items.length) {
+        val item = items.item(i) as Element
+        val title = item.getElementsByTagName("title").item(0)?.textContent?.trim() ?: ""
+        val pubDate = item.getElementsByTagName("pubDate").item(0)?.textContent?.substring(0, 16) ?: ""
+        val link = item.getElementsByTagName("link").item(0)?.textContent?.trim() ?: ""
+
+        list.add(RssItem(title, pubDate, link))
+    }
+
+    while (true) {
+        println()
+        print("검색어를 입력하세요 (없으면 전체 출력): ")
+        val keyword = readLine()?.trim()
+
+        val filtered =
+            if (keyword.isNullOrEmpty()) {
+                list
+            } else {
+                list.filter { it.title.contains(keyword, ignoreCase = true) }
+            }
+
+        println()
+        if (filtered.isEmpty()) {
+            println("검색 결과가 없습니다.")
+        } else {
+            filtered.forEachIndexed { index, item ->
+                println("[${index + 1}] ${item.title} (${item.pubDate}) - ${item.link}")
+            }
+        }
+    }
 }
