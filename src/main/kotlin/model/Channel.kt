@@ -1,3 +1,5 @@
 package model
 
-class Channel
+data class Channel(
+    val items: List<Item>
+)

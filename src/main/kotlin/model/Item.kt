@@ -1,3 +1,7 @@
 package model
 
-class Item
+data class Item(
+    val title: String,
+    val link: String,
+    val pubDate: String
+)
