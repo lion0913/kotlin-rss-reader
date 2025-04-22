@@ -66,10 +66,11 @@ private fun startAutoRefresh() {
         while (true) {
             delay(1000 * 60 * 10L)
 
-            val newItems = withContext(Dispatchers.IO) {
-                BlogRss.entries.map { async { it.parseRss(it.rssUrl) } }.awaitAll()
-            }.flatten()
-                .filter { it.pubDate.isAfter(ZonedDateTime.now().minusMinutes(10)) }
+            val newItems =
+                withContext(Dispatchers.IO) {
+                    BlogRss.entries.map { async { it.parseRss(it.rssUrl) } }.awaitAll()
+                }.flatten()
+                    .filter { it.pubDate.isAfter(ZonedDateTime.now().minusMinutes(10)) }
 
             if (newItems.isNotEmpty()) {
                 println("[신규 게시글]")
