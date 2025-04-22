@@ -1,4 +1,5 @@
 import kotlinx.coroutines.runBlocking
+import model.Item
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import utils.BlogRss
@@ -10,7 +11,7 @@ class ApplicationKtTest {
     @Test
     fun `RSS 파싱이 정상적으로 동작해야 한다`() =
         runBlocking {
-            val url = "https://tech.kakao.com/feed/"
+            val url = "https://tech.kakao.com/feed143/"
             val result = BlogRss.KAKAO.parseRss(url)
 
             assertTrue(result.isNotEmpty())
@@ -35,4 +36,12 @@ class ApplicationKtTest {
         assertEquals(23, result.second)
         assertEquals("Z", result.offset.toString()) // GMT == UTC == Z
     }
+
+    @Test
+    fun `블로그 파싱 중에 에러가 발생해도 어플리케이션이 종료되지 않는다`() =
+        runBlocking {
+            val allItems = mutableListOf<Item>()
+            getBlogItems(allItems)
+            assertTrue(allItems.isNotEmpty())
+        }
 }
