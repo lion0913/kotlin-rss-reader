@@ -12,15 +12,7 @@ import java.time.ZonedDateTime
 import kotlin.system.measureTimeMillis
 
 suspend fun main() {
-    val refreshItems = mutableListOf<Item>()
-
-    // 10분 주기로 신규 게시글 체크
-    GlobalScope.launch(Dispatchers.Default) {
-        while (true) {
-            delay(1000 * 60 * 10L)
-            checkNewItems(refreshItems)
-        }
-    }
+    startAutoRefresh()
 
     while (true) {
         println("\n검색어를 입력하세요 (없으면 전체 출력, 종료하려면 exit):")
@@ -68,24 +60,21 @@ private suspend fun getBlogItems(allItems: MutableList<Item>) {
     }
 }
 
-private suspend fun checkNewItems(refreshItems: MutableList<Item>) {
-    val newItems = mutableListOf<Item>()
-    withContext(Dispatchers.IO) {
-        BlogRss.entries
-            .map {
-                async {
-                    newItems += it.parseRss(it.rssUrl)
-                }
-            }.awaitAll()
-    }
+private fun startAutoRefresh() {
+    // 10분 주기로 신규 게시글 체크
+    GlobalScope.launch(Dispatchers.Default) {
+        while (true) {
+            delay(1000 * 60 * 10L)
 
-    val now = ZonedDateTime.now()
-    val tenMinutesAgo = now.minusMinutes(10)
+            val newItems = withContext(Dispatchers.IO) {
+                BlogRss.entries.map { async { it.parseRss(it.rssUrl) } }.awaitAll()
+            }.flatten()
+                .filter { it.pubDate.isAfter(ZonedDateTime.now().minusMinutes(10)) }
 
-    val filtered = newItems.filter { it.pubDate.isAfter(tenMinutesAgo) }
-    if (filtered.isNotEmpty()) {
-        println("\n🆕 신규 글이 올라왔습니다!")
-        filtered.forEach { println("[NEW] $it") }
-        refreshItems.addAll(filtered)
+            if (newItems.isNotEmpty()) {
+                println("[신규 게시글]")
+                newItems.forEach { println("[NEW] $it") }
+            }
+        }
     }
 }
