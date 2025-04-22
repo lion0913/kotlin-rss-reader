@@ -30,7 +30,6 @@ class ApplicationKtTest {
     fun `PubDate 파싱이 정상 동작해야 한다`() {
         // given
         val input = "2025-04-22" // 포맷이 잘못된 pubDate
-//        val input = "Tue, 22 Apr 2025 04:43:23 GMT"
 
         // when
         val result = DateTimeUtils.parsePubDate(input)
@@ -56,13 +55,14 @@ class ApplicationKtTest {
     fun `BlogRss 중 일부 parseRss 실패해도 전체 앱이 멈추지 않는다`() =
         runBlocking {
             val allItems = mutableListOf<Item>()
+            val url = "http://hyundai.com"
 
             mockkObject(BlogRss.HYUNDAI)
             mockkObject(BlogRss.KAKAO)
 
-            coEvery { BlogRss.HYUNDAI.parseRss(any()) } returns
+            coEvery { BlogRss.HYUNDAI.parseRss(url) } returns
                 listOf(
-                    Item("정상 포스트", "http://hyundai.com", ZonedDateTime.now()),
+                    Item("정상 포스트", url, ZonedDateTime.now()),
                 )
 
             coEvery { BlogRss.KAKAO.parseRss(any()) } throws RuntimeException("파싱 실패")
