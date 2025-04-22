@@ -12,7 +12,7 @@ import java.time.ZonedDateTime
 import kotlin.system.measureTimeMillis
 
 suspend fun main() {
-    startAutoRefresh()
+    startAutoRefresh(1000 * 60 * 10L)
 
     while (true) {
         println("\n검색어를 입력하세요 (없으면 전체 출력, 종료하려면 exit):")
@@ -60,11 +60,11 @@ private suspend fun getBlogItems(allItems: MutableList<Item>) {
     }
 }
 
-private fun startAutoRefresh() {
-    // 10분 주기로 신규 게시글 체크
+fun startAutoRefresh(delayTime: Long) {
+    // 일정 주기로 신규 게시글 체크
     GlobalScope.launch(Dispatchers.Default) {
         while (true) {
-            delay(1000 * 60 * 10L)
+            delay(delayTime)
 
             val newItems =
                 withContext(Dispatchers.IO) {
