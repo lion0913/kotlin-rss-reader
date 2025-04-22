@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<baseline version="1.0">
+    <file name="src/main/kotlin/Application.kt">
+        <error line="69" column="28" source="standard:multiline-expression-wrapping" />
+    </file>
+</baseline>
