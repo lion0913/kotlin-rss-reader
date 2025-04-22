@@ -5,7 +5,6 @@ import org.w3c.dom.NodeList
 import utils.BlogRss
 import utils.DateTimeUtils
 import java.net.URL
-import java.time.LocalDateTime
 import javax.xml.parsers.DocumentBuilderFactory
 
 suspend fun main() {
@@ -33,21 +32,14 @@ suspend fun main() {
 
                 items
             }
+
         val filtered =
             if (input.isNullOrBlank()) {
-                allItems.take(10)
-            } else {
                 allItems
-                    .filter { it.title.contains(input, ignoreCase = true) }
-                    .take(10) // 상위 10개만
-            }.sortedByDescending {
-                // 내림차순 정렬
-                try {
-                    DateTimeUtils.convertPubDateToLocalDateTime(it.pubDate)
-                } catch (e: Exception) {
-                    LocalDateTime.MIN // 변환 실패 시 가장 오래된 날짜로 간주
-                }
-            }
+            } else {
+                allItems.filter { it.title.contains(input, ignoreCase = true) }
+            }.sortedByDescending { it.pubDate } // ZonedDateTime이라 바로 정렬 가능
+                .take(10)
 
         println()
         filtered.forEachIndexed { index, item ->
@@ -75,13 +67,13 @@ suspend fun parseRss(url: String): List<Item> {
 
             val title = elem.getElementsByTagName("title").item(0)?.textContent ?: ""
             val link = elem.getElementsByTagName("link").item(0)?.textContent ?: ""
-            val pubDate = elem.getElementsByTagName("pubDate").item(0)?.textContent ?: ""
+            val pubDateRaw = elem.getElementsByTagName("pubDate").item(0)?.textContent ?: ""
+
+            val pubDate = DateTimeUtils.parsePubDate(pubDateRaw)
 
             itemList.add(Item(title, link, pubDate))
         }
     }
 
-    return itemList.sortedByDescending {
-        DateTimeUtils.convertPubDateToLocalDateTime(it.pubDate)
-    }
+    return itemList.sortedByDescending { it.pubDate }
 }
