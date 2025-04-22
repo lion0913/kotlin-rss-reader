@@ -49,7 +49,7 @@ suspend fun main() {
     }
 }
 
-private suspend fun getBlogItems(allItems: MutableList<Item>) {
+suspend fun getBlogItems(allItems: MutableList<Item>) {
     withContext(Dispatchers.IO) {
         BlogRss.entries
             .map { rss ->
