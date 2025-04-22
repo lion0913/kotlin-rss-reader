@@ -21,7 +21,8 @@ class ApplicationKtTest {
     @Test
     fun `PubDate 파싱이 정상 동작해야 한다`() {
         // given
-        val input = "Tue, 22 Apr 2025 04:43:23 GMT"
+        val input = "2025-04-22" // 포맷이 잘못된 pubDate
+//        val input = "Tue, 22 Apr 2025 04:43:23 GMT"
 
         // when
         val result = DateTimeUtils.parsePubDate(input)
